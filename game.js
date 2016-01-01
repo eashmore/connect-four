@@ -1,19 +1,26 @@
+var colors = require('colors');
+
 function Piece(color, pos, board){
   this.color = color;
   this.pos = pos;
 
-  this.char = this.color ? this.color[0] : 'O';
+  this.char = this.color === 'Black' ? 'B'.blue : 'R'.red;
 }
 
-function Board(){
-  this.grid = new Array(7);
+function Space() {
+  this.char = 'O';
+}
+
+function Board(x, y){
+  this.grid = new Array(x);
+  this.row = y;
 
   this.makeGrid = function() {
     for (var i = 0; i < this.grid.length; i++) {
-      this.grid[i] = new Array(6);
+      this.grid[i] = new Array(this.row);
 
       for (var j = 0; j < this.grid[i].length; j++) {
-        this.grid[i][j] = new Piece();
+        this.grid[i][j] = new Space();
       }
     }
     return this.grid;
@@ -141,8 +148,8 @@ function Board(){
 
     i = 1;
     while (i <= 4) {
-      if (this.grid[x-i] && this.grid[x-i][y+i] &&
-        this.grid[x-i][y+i].color === piece.color
+      if (this.grid[x+i] && this.grid[x+i][y-i] &&
+        this.grid[x+i][y-i].color === piece.color
       ) {
         lineCount++;
         i++;
@@ -159,14 +166,14 @@ function Board(){
   };
 }
 
-function Game(){
-  this.board = new Board();
+function Game(x, y){
+  this.board = new Board(x, y);
   this.currentPlayer = 'Black';
 
   this.start = function() {
     this.board.makeGrid();
     this.printBoard();
-    console.log(this.currentPlayer + ' choose a column:');
+    console.log(this.currentPlayer + ', choose a column:');
     this.play();
   };
 
@@ -202,21 +209,6 @@ function Game(){
     return true;
   };
 
-  this.printBoard = function() {
-    var i = this.board.grid[0].length - 1;
-
-    console.log('1  2  3  4  5  6  7');
-    while (i >= 0) {
-      console.log(this.board.grid[0][i].char + '  ' + this.board.grid[1][i].char +
-        '  ' + this.board.grid[2][i].char + '  ' + this.board.grid[3][i].char +
-        '  ' + this.board.grid[4][i].char + '  ' + this.board.grid[5][i].char +
-        '  ' + this.board.grid[6][i].char
-      );
-
-      i--;
-    }
-  };
-
   this.isWon = function(piece) {
     if (this.board.isLine(piece)) {
       this.printBoard();
@@ -224,6 +216,28 @@ function Game(){
       process.exit();
     }
   };
+
+  this.printBoard = function() {
+    var i = this.board.grid[0].length - 1;
+    var head = '';
+
+    for (var k = 1; k <= this.board.grid.length; k++) {
+      head += k + '  ';
+    }
+    console.log(head);
+
+    while (i >= 0) {
+      var row = '';
+      for (var j = 0; j < this.board.grid.length; j++) {
+        row += this.board.grid[j][i].char;
+        row += '  ';
+      }
+
+      console.log(row);
+      i--;
+    }
+  };
 }
 
-new Game().start();
+var game = new Game(7, 6);
+game.start();
